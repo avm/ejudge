@@ -1072,7 +1072,7 @@ struct section_problem_data
   unsigned char *score_tests;
   /** name of the built-in checker */
   unsigned char *standard_checker;
-  /** spelling for the festival speach generator */
+  /** spelling for the festival speech generator */
   unsigned char *spelling;
   /** file with HTML problem statement */
   unsigned char *statement_file;
