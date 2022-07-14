@@ -179,6 +179,21 @@ static unsigned char const password_accept_chars[] =
 
 static unsigned char *lang_ids_file = 0;
 
+struct param {
+  const char* name;
+  char* var;
+  size_t bufsize;
+};
+
+#define STRING_PARAM(x) { #x, x, sizeof(x) }
+
+struct param params[] = {
+  STRING_PARAM(config_mysql_database),
+  STRING_PARAM(config_mysql_user),
+  STRING_PARAM(config_mysql_password),
+  { NULL, NULL, 0 }
+};
+
 /* enumeration for path editing */
 enum
 {
@@ -4571,6 +4586,24 @@ arg_expected(const unsigned char *progname)
   exit(1);
 }
 
+static void
+set_var_from_cmdline(char* definition) {
+  char* equal_sign = strchr(definition, '=');
+  if (!equal_sign) {
+    fprintf(stderr, "-v: expected VAR=VALUE, got %s\n", definition);
+    exit(1);
+  }
+  *equal_sign = '\0';
+  for (struct param *param = params; param->name; ++param) {
+    if (!strcmp(param->name, definition)) {
+      snprintf(param->var, param->bufsize, "%s", equal_sign + 1);
+      return;
+    }
+  }
+  fprintf(stderr, "-v: no such variable `%s'\n", definition);
+  exit(1);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -4578,6 +4611,8 @@ main(int argc, char **argv)
   int cur_arg = 1;
   const unsigned char *user = 0, *group = 0, *workdir = 0;
   int batch_mode = 0;
+
+  initialize_mysql_vars(NULL, NULL, NULL);
 
   while (cur_arg < argc) {
     if (!strcmp(argv[cur_arg], "-u")) {
@@ -4598,6 +4633,10 @@ main(int argc, char **argv)
     } else if (!strcmp(argv[cur_arg], "-i")) {
       if (cur_arg + 1 >= argc) arg_expected(argv[0]);
       lang_ids_file = argv[cur_arg + 1];
+      cur_arg += 2;
+    } else if (!strcmp(argv[cur_arg], "-v")) {
+      if (cur_arg + 1 >= argc) arg_expected(argv[0]);
+      set_var_from_cmdline(argv[cur_arg + 1]);
       cur_arg += 2;
     } else {
       break;
@@ -4626,7 +4665,6 @@ main(int argc, char **argv)
            EJUDGE_SERVER_BIN_PATH);
   initialize_config_vars();
   initialize_setting_vars();
-  initialize_mysql_vars(NULL, NULL, NULL);
 
   if (batch_mode) {
     snprintf(config_user_id, sizeof(config_user_id), "%d", 1);
