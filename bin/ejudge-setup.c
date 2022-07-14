@@ -4620,7 +4620,7 @@ main(int argc, char **argv)
   get_system_identity();
   create_tmp_dir();
 
-  if (ncurses_init() < 0) return 1;
+  if (ncurses_init() < 0 && !batch_mode) return 1;
 
   snprintf(uudecode_path, sizeof(uudecode_path), "%s/uudecode",
            EJUDGE_SERVER_BIN_PATH);
