@@ -353,6 +353,10 @@ prepare_func(
         err("telegram: invalid storage '%s'", storage);
         return -1;
     }
+    if (!conn) {
+        err("telegram: storage '%s' is not supported", storage);
+        return -1;
+    }
     state->conn = conn;
     conn->host = host; host = NULL;
     conn->port = port;

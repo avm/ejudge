@@ -132,10 +132,14 @@ static struct generic_conn_iface mongo_iface =
 struct generic_conn *
 mongo_conn_create(void)
 {
+#if HAVE_LIBMONGOC - 0 > 0
     struct mongo_conn *conn = NULL;
     XCALLOC(conn, 1);
     conn->b.vt = &mongo_iface;
     return &conn->b;
+#else
+    return NULL;
+#endif
 }
 
 static struct mongo_conn *
