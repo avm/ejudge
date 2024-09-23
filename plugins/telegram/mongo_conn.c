@@ -31,6 +31,7 @@
 
 #define MONGO_RETRY_TIMEOUT 60
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct generic_conn *
 free_func(struct generic_conn *gc);
 static int
@@ -132,20 +133,15 @@ static struct generic_conn_iface mongo_iface =
 struct generic_conn *
 mongo_conn_create(void)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     struct mongo_conn *conn = NULL;
     XCALLOC(conn, 1);
     conn->b.vt = &mongo_iface;
     return &conn->b;
-#else
-    return NULL;
-#endif
 }
 
 static struct mongo_conn *
 mongo_conn_free(struct mongo_conn *conn)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (conn) {
         xfree(conn->b.database);
         xfree(conn->b.host);
@@ -159,9 +155,6 @@ mongo_conn_free(struct mongo_conn *conn)
         xfree(conn);
     }
     return NULL;
-#else
-    return NULL;
-#endif
 }
 
 static struct generic_conn *
@@ -174,7 +167,6 @@ free_func(struct generic_conn *gc)
 static int
 mongo_conn_open(struct mongo_conn *state)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (state->client) return 1;
 
     time_t current_time = time(NULL);
@@ -216,9 +208,6 @@ mongo_conn_open(struct mongo_conn *state)
     mongoc_client_set_appname(state->client, "ejudge-plugin-telegram");
 
     return 1;
-#else
-    return 0;
-#endif
 }
 
 static int
@@ -399,3 +388,11 @@ subscription_save_func(
 {
     return telegram_subscription_save((struct mongo_conn*) gc, subscription);
 }
+
+#else // HAVE_LIBMONGOC - 0 > 0
+struct generic_conn *
+mongo_conn_create(void)
+{
+    return NULL;
+}
+#endif
