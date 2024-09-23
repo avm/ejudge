@@ -20,13 +20,8 @@
 #include "ejudge/xalloc.h"
 #include "ejudge/errlog.h"
 
-#if HAVE_LIBMONGOC - 0 > 1
-#include <mongoc/mongoc.h>
-struct _bson_t;
-typedef struct _bson_t ej_bson_t;
-#elif HAVE_LIBMONGOC - 0 > 0
-#include <mongoc.h>
-struct _bson_t;
+#if HAVE_LIBBSON - 0 > 0
+#include <bson/bson.h>
 typedef struct _bson_t ej_bson_t;
 #endif
 
@@ -35,7 +30,7 @@ typedef struct _bson_t ej_bson_t;
 struct team_warning *
 team_warning_bson_parse(ej_bson_t *b)
 {
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct team_warning *res = NULL;
 
@@ -75,7 +70,7 @@ fail:;
 struct team_extra *
 team_extra_bson_parse(ej_bson_t *b)
 {
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
     struct team_extra *res = NULL;
     bson_iter_t iter, * const bc = &iter;
     bson_t *arr = NULL;
@@ -156,7 +151,7 @@ fail:;
 ej_bson_t *
 team_warning_bson_unparse(const struct team_warning *tw)
 {
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
     bson_t *res = bson_new();
     long long utc_dt = (long long) tw->date * 1000;
     bson_append_date_time(res, "date", -1, utc_dt);
@@ -177,7 +172,7 @@ team_warning_bson_unparse(const struct team_warning *tw)
 ej_bson_t *
 team_warnings_bson_unparse(struct team_warning **tws, int count)
 {
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
     bson_t *res = bson_new();
     if (tws && count > 0) {
         for (int i = 0; i < count; ++i) {
@@ -197,7 +192,7 @@ team_warnings_bson_unparse(struct team_warning **tws, int count)
 ej_bson_t *
 team_extra_bson_unparse(const struct team_extra *extra)
 {
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
     bson_t *res = bson_new();
     ej_bson_append_uuid_new(res, "_id", &extra->uuid);
     bson_append_int32(res, "user_id", -1, extra->user_id);
