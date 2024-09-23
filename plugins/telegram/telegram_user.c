@@ -40,11 +40,6 @@ typedef struct _bson_t ej_bson_t;
 
 #define TELEGRAM_USERS_TABLE_NAME "telegram_users"
 
-static struct telegram_user *
-telegram_user_parse_bson(const ej_bson_t *bson);
-static ej_bson_t *
-telegram_user_unparse_bson(const struct telegram_user *tu);
-
 struct telegram_user *
 telegram_user_free(struct telegram_user *tu)
 {
@@ -66,10 +61,10 @@ telegram_user_create(void)
     return tu;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct telegram_user *
 telegram_user_parse_bson(const ej_bson_t *bson)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct telegram_user *tu = NULL;
 
@@ -94,15 +89,11 @@ telegram_user_parse_bson(const ej_bson_t *bson)
 cleanup:
     telegram_user_free(tu);
     return NULL;
-#else
-    return NULL;
-#endif
 }
 
 static ej_bson_t *
 telegram_user_unparse_bson(const struct telegram_user *tu)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!tu) return NULL;
 
     bson_t *bson = bson_new();
@@ -121,15 +112,11 @@ telegram_user_unparse_bson(const struct telegram_user *tu)
     }
 
     return bson;
-#else
-    return NULL;
-#endif
 }
 
 struct telegram_user *
 telegram_user_fetch(struct mongo_conn *conn, long long _id)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return NULL;
 
     struct telegram_user *retval = NULL;
@@ -158,15 +145,11 @@ cleanup:
     if (query) bson_destroy(query);
     if (coll) mongoc_collection_destroy(coll);
     return retval;
-#else
-    return NULL;
-#endif
 }
 
 int
 telegram_user_save(struct mongo_conn *conn, const struct telegram_user *tu)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -196,7 +179,5 @@ cleanup:
     if (bson) bson_destroy(bson);
     if (coll) mongoc_collection_destroy(coll);
     return retval;
-#else
-    return 0;
-#endif
 }
+#endif

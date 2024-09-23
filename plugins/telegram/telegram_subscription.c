@@ -39,11 +39,6 @@ typedef struct _bson_t ej_bson_t;
 
 #define TELEGRAM_SUBSCRIPTIONS_TABLE_NAME "telegram_subscriptions"
 
-static struct telegram_subscription *
-telegram_subscription_parse_bson(const ej_bson_t *bson);
-static ej_bson_t *
-telegram_subscription_unparse_bson(const struct telegram_subscription *subscription);
-
 struct telegram_subscription *
 telegram_subscription_free(struct telegram_subscription *sub)
 {
@@ -73,10 +68,10 @@ telegram_subscription_create(const unsigned char *bot_id, int user_id, int conte
     return sub;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct telegram_subscription *
 telegram_subscription_parse_bson(const ej_bson_t *bson)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct telegram_subscription *sub = NULL;
 
@@ -106,15 +101,11 @@ telegram_subscription_parse_bson(const ej_bson_t *bson)
 cleanup:
     telegram_subscription_free(sub);
     return NULL;
-#else
-    return NULL;
-#endif
 }
 
 static ej_bson_t *
 telegram_subscription_unparse_bson(const struct telegram_subscription *sub)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!sub) return NULL;
 
     bson_t *bson = bson_new();
@@ -140,15 +131,11 @@ telegram_subscription_unparse_bson(const struct telegram_subscription *sub)
         bson_append_int64(bson, "chat_id", -1, sub->chat_id);
     }
     return bson;
-#else
-    return NULL;
-#endif
 }
 
 struct telegram_subscription *
 telegram_subscription_fetch(struct mongo_conn *conn, const unsigned char *bot_id, int user_id, int contest_id)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return NULL;
 
     unsigned char buf[1024];
@@ -180,15 +167,11 @@ cleanup:
     if (coll) mongoc_collection_destroy(coll);
     if (query) bson_destroy(query);
     return retval;
-#else
-    return NULL;
-#endif
 }
 
 int
 telegram_subscription_save(struct mongo_conn *conn, const struct telegram_subscription *sub)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -218,7 +201,5 @@ cleanup:
     if (query) bson_destroy(query);
     if (bson) bson_destroy(bson);
     return retval;
-#else
-    return 0;
-#endif
 }
+#endif

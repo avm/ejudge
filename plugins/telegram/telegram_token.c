@@ -37,11 +37,6 @@ typedef struct _bson_t ej_bson_t;
 
 #define TELEGRAM_TOKENS_TABLE_NAME "telegram_tokens"
 
-static ej_bson_t *
-telegram_token_unparse_bson(const struct telegram_token *token);
-static struct telegram_token *
-telegram_token_parse_bson(const ej_bson_t *bson);
-
 struct telegram_token *
 telegram_token_free(struct telegram_token *token)
 {
@@ -56,10 +51,10 @@ telegram_token_free(struct telegram_token *token)
     return NULL;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct telegram_token *
 telegram_token_parse_bson(const ej_bson_t *bson)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct telegram_token *token = NULL;
 
@@ -94,10 +89,8 @@ telegram_token_parse_bson(const ej_bson_t *bson)
 cleanup:
     telegram_token_free(token);
     return NULL;
-#else
-    return 0;
-#endif
 }
+#endif
 
 struct telegram_token *
 telegram_token_create(void)
@@ -107,10 +100,10 @@ telegram_token_create(void)
     return token;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static ej_bson_t *
 telegram_token_unparse_bson(const struct telegram_token *token)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!token) return NULL;
 
     bson_t *bson = bson_new();
@@ -153,15 +146,11 @@ telegram_token_unparse_bson(const struct telegram_token *token)
         bson_append_date_time(bson, "expiry_time", -1, 1000LL * token->expiry_time);
     }
     return bson;
-#else
-    return NULL;
-#endif
 }
 
 void
 telegram_token_remove_expired(struct mongo_conn *conn, time_t current_time)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (current_time <= 0) current_time = time(NULL);
 
     if (!conn->b.vt->open(&conn->b)) return;
@@ -192,13 +181,11 @@ cleanup:
     if (qq) bson_destroy(qq);
     if (coll) mongoc_collection_destroy(coll);
     return;
-#endif
 }
 
 void
 telegram_token_remove(struct mongo_conn *conn, const unsigned char *token)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return;
 
     mongoc_collection_t *coll = NULL;
@@ -221,13 +208,11 @@ telegram_token_remove(struct mongo_conn *conn, const unsigned char *token)
 cleanup:
     if (query) bson_destroy(query);
     if (coll) mongoc_collection_destroy(coll);
-#endif
 }
 
 int
 telegram_token_fetch(struct mongo_conn *conn, const unsigned char *token_str, struct telegram_token **p_token)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -259,15 +244,11 @@ cleanup:
     if (query) bson_destroy(query);
     if (coll) mongoc_collection_destroy(coll);
     return retval;
-#else
-    return 0;
-#endif
 }
 
 int
 telegram_token_save(struct mongo_conn *conn, const struct telegram_token *token)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -315,7 +296,5 @@ cleanup:
     if (coll) mongoc_collection_destroy(coll);
     if (db) mongoc_database_destroy(db);
     return retval;
-#else
-    return 0;
-#endif
 }
+#endif

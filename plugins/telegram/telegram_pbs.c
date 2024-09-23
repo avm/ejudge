@@ -38,11 +38,6 @@ typedef struct _bson_t ej_bson_t;
 
 #define TELEGRAM_BOTS_TABLE_NAME "telegram_bots"
 
-static ej_bson_t *
-telegram_pbs_unparse_bson(const struct telegram_pbs *pbs);
-static struct telegram_pbs *
-telegram_pbs_parse_bson(const ej_bson_t *bson);
-
 struct telegram_pbs *
 telegram_pbs_free(struct telegram_pbs *pbs)
 {
@@ -62,10 +57,10 @@ telegram_pbs_create(const unsigned char *_id)
     return pbs;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct telegram_pbs *
 telegram_pbs_parse_bson(const ej_bson_t *bson)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct telegram_pbs *pbs = NULL;
 
@@ -86,15 +81,11 @@ telegram_pbs_parse_bson(const ej_bson_t *bson)
 cleanup:
     telegram_pbs_free(pbs);
     return NULL;
-#else
-    return NULL
-#endif
 }
 
 static ej_bson_t *
 telegram_pbs_unparse_bson(const struct telegram_pbs *pbs)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!pbs) return NULL;
 
     bson_t *bson = bson_new();
@@ -105,15 +96,11 @@ telegram_pbs_unparse_bson(const struct telegram_pbs *pbs)
         bson_append_int64(bson, "update_id", -1, pbs->update_id);
     }
     return bson;
-#else
-    return NULL;
-#endif
 }
 
 int
 telegram_pbs_save(struct mongo_conn *conn, const struct telegram_pbs *pbs)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -142,15 +129,11 @@ cleanup:
     if (query) bson_destroy(query);
     if (bson) bson_destroy(bson);
     return retval;
-#else
-    return 0;
-#endif
 }
 
 struct telegram_pbs *
 telegram_pbs_fetch(struct mongo_conn *conn, const unsigned char *bot_id)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return NULL;
 
     bson_t *query = NULL;
@@ -183,7 +166,5 @@ cleanup:
     if (coll) mongoc_collection_destroy(coll);
     if (query) bson_destroy(query);
     return retval;
-#else
-    return NULL;
-#endif
 }
+#endif

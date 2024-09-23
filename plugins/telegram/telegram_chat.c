@@ -40,11 +40,6 @@ typedef struct _bson_t ej_bson_t;
 
 #define TELEGRAM_CHATS_TABLE_NAME "telegram_chats"
 
-static struct telegram_chat *
-telegram_chat_parse_bson(const ej_bson_t *bson);
-static ej_bson_t *
-telegram_chat_unparse_bson(const struct telegram_chat *tc);
-
 struct telegram_chat *
 telegram_chat_free(struct telegram_chat *tc)
 {
@@ -68,10 +63,10 @@ telegram_chat_create(void)
     return tc;
 }
 
+#if HAVE_LIBMONGOC - 0 > 0
 static struct telegram_chat *
 telegram_chat_parse_bson(const ej_bson_t *bson)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     bson_iter_t iter, * const bc = &iter;
     struct telegram_chat *tc = NULL;
 
@@ -101,15 +96,11 @@ cleanup:
     telegram_chat_free(tc);
     return NULL;
 
-#else
-    return NULL;
-#endif
 }
 
 static ej_bson_t *
 telegram_chat_unparse_bson(const struct telegram_chat *tc)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!tc) return NULL;
 
     bson_t *bson = bson_new();
@@ -134,15 +125,11 @@ telegram_chat_unparse_bson(const struct telegram_chat *tc)
     }
 
     return bson;
-#else
-    return NULL;
-#endif
 }
 
 struct telegram_chat *
 telegram_chat_fetch(struct mongo_conn *conn, long long _id)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return NULL;
 
     mongoc_collection_t *coll = NULL;
@@ -170,15 +157,11 @@ cleanup:
     if (query) bson_destroy(query);
     return retval;
 
-#else
-    return NULL;
-#endif
 }
 
 int
 telegram_chat_save(struct mongo_conn *conn, const struct telegram_chat *tc)
 {
-#if HAVE_LIBMONGOC - 0 > 0
     if (!conn->b.vt->open(&conn->b)) return -1;
 
     int retval = -1;
@@ -207,7 +190,5 @@ cleanup:
     if (query) bson_destroy(query);
     if (bson) bson_destroy(bson);
     return retval;
-#else
-    return 0;
-#endif
 }
+#endif
