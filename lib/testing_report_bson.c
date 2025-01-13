@@ -27,14 +27,8 @@
 #include <stdio.h>
 #include <sys/mman.h>
 
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
 #include <bson/bson.h>
-
-#if HAVE_LIBMONGOC - 0 > 1
-#include <mongoc/mongoc.h>
-#else
-#include <mongoc.h>
-#endif
 
 #include "gen/testing_report_tags.c"
 

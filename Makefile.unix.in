@@ -54,8 +54,11 @@ LIBCAP_INCL_OPT=@ac_cv_libcap_include_opt@
 LIBCAP_LIB_OPT=@ac_cv_libcap_lib_opt@
 
 MONGOC_EXISTS=@ac_cv_has_libmongoc@
-MONGOC_CFLAGS=@ac_cv_libmongoc_cflags@
-MONGOC_LIBS=@ac_cv_libmongoc_libs@
+MONGOC_CFLAGS=@ac_cv_libmongoc_cflags@ @LIBBSON_CFLAGS@
+MONGOC_LIBS=@ac_cv_libmongoc_libs@ @LIBBSON_LIBS@
+
+LIBBSON_CFLAGS=@LIBBSON_CFLAGS@
+LIBBSON_LIBS=@LIBBSON_LIBS@
 
 WPTRSIGN=@ac_cv_gcc_wno_pointer_sign@ @ac_cv_gcc_wno_format_truncation@
 NCURSES_SUFFIX=@ac_cv_ncurses_suffix@

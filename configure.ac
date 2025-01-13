@@ -84,6 +84,7 @@ AC_ARG_ENABLE([preserve-scripts],AS_HELP_STRING([--enable-preserve-scripts],[do 
 AC_ARG_ENABLE([lang-config-dir],AS_HELP_STRING([--enable-lang-config-dir],[install language config scripts into specified directory]),[ac_cv_lang_config_dir="${enableval}"],[ac_cv_lang_config_dir=])
 
 AC_ARG_ENABLE([libmongoc],AS_HELP_STRING([--enable-libmongoc],[enable libmongoc mongo client library]),[ac_cv_enable_libmongoc="${enableval}"],[ac_cv_enable_libmongoc=])
+AC_ARG_ENABLE([libbson],AS_HELP_STRING([--enable-libbson],[use the libbson library]),[ac_cv_enable_libbson="${enableval}"],[ac_cv_enable_libbson=])
 
 AC_ARG_WITH([rest],AS_HELP_STRING([--with-rest],[enable RESTful API]),[ac_cv_rest="$withval"])
 
@@ -971,6 +972,15 @@ if [[ x"${ac_cv_has_libmongoc}" != x ]]
 then
   ac_cv_libmongoc_cflags=`pkg-config --cflags libmongoc-1.0`
   ac_cv_libmongoc_libs=`pkg-config --libs libmongoc-1.0`
+fi
+
+if [[ x"${ac_cv_enable_libbson}" != xdisable ]]
+then
+  PKG_CHECK_MODULES([LIBBSON], [libbson-1.0], [ac_cv_has_libbson=1], [ac_cv_has_libbson=])
+  if [[ x"${ac_cv_has_libbson}" = x1 ]]
+  then
+    AC_DEFINE(HAVE_LIBBSON, 1)
+  fi
 fi
 
 dnl Checking for available languages

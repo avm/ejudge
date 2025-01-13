@@ -16,7 +16,9 @@
 
 #include "ejudge/config.h"
 
-#if HAVE_LIBMONGOC - 0 > 0
+#if HAVE_LIBBSON - 0 > 0
+
+#include <bson/bson.h>
 
 #include "ejudge/bson_utils.h"
 #include "ejudge/ej_uuid.h"
@@ -24,12 +26,6 @@
 #include "ejudge/xml_utils.h"
 
 #include "ejudge/xalloc.h"
-
-#if HAVE_LIBMONGOC - 0 > 1
-#include <mongoc/mongoc.h>
-#else
-#include <mongoc.h>
-#endif
 
 void
 ej_bson_unparse_new(
